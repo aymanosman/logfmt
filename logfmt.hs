@@ -40,8 +40,14 @@ s2 = "key=\"value\" foo=bar"
 s3 = "key=\"a value\" foo=bar"
 s4 = "a=1 b=2 c=3"
 s5 = "schmoo=\"hello\nworld\""
+s6 = "ip=127.0.0.1 time=2015-05-03T13:54:03.396Z method=GET path=\"/test/user/has-friend?friend=example\" status=304 content_length= content_type= elapsed=2ms"
 
 main = do
+  K.putStrLn s6
+  let Right r = parseOnly parseLine s6
+  mapM_ print r
+
+main2 = do
   p parseLine s
   p parseLine s2
   p parseLine s3
