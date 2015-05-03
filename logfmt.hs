@@ -25,15 +25,15 @@ ws = P.takeWhile (P.inClass " ")
 
 finalP :: Parser [Pair]
 finalP = do
-  p1 <- parsePair <* skipWhitespace
-  p2 <- parsePair
-  return $ p1:[p2]
+  p1 <- many (parsePair <* skipWhitespace)
+  return $ p1
   where
     skipWhitespace = ws
 
 s = "key=value foo=\"a bar\""
 s2 = "key=\"value\" foo=bar"
 s3 = "key=\"a value\" foo=bar"
+s4 = "a=1 b=2 c=3"
 
 main = do
   -- p p1 s
@@ -41,7 +41,8 @@ main = do
   -- p parsePair s
   -- p parsePair s3
   -- p p3 s
-  p finalP s
+  p finalP s4
+  p finalP s3
   where
     p pr s = do
       putStrLn (K.unpack s)
@@ -49,7 +50,9 @@ main = do
         Done i r -> do
           print r
           putStrLn (K.unpack i)
-        _ -> fail "woops"
+        x -> do
+          print "FAILURE"
+          print x
       putStrLn ""
 
 
