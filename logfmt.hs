@@ -19,25 +19,36 @@ parsePair = liftA2 Pair (fmap K.unpack p2) (fmap K.unpack parseVal)
 
 parseVal = P.takeWhile (P.notInClass " ")
 
+p3 = (parsePair <* ws) <* parsePair
+
+ws = P.takeWhile (P.inClass " ")
+
+finalP :: Parser [Pair]
+finalP = do
+  p1 <- parsePair <* skipWhitespace
+  p2 <- parsePair
+  return $ p1:[p2]
+  where
+    skipWhitespace = ws
+
 s = "key=value foo=\"a bar\""
-test = parse p1 s
-test2 = parse p2 s
-test3 = P.parse parsePair s
 s2 = "key=\"value\" foo=bar"
-
-
 s3 = "key=\"a value\" foo=bar"
 
-
 main = do
-  p p1 s
-  p p2 s
-  -- p (K.pack . show . parsePair) s
+  -- p p1 s
+  -- p p2 s
+  -- p parsePair s
+  -- p parsePair s3
+  -- p p3 s
+  p finalP s
   where
     p pr s = do
-      putStr (K.unpack s)
+      putStrLn (K.unpack s)
       case (parse pr s) of
-        Done i r -> putStr (" -> " ++ (K.unpack r) ++ " <- " ++ (K.unpack i))
+        Done i r -> do
+          print r
+          putStrLn (K.unpack i)
         _ -> fail "woops"
       putStrLn ""
 
