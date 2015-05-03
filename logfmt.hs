@@ -4,7 +4,6 @@ module Logfmt where
 
 import Control.Monad
 import Control.Applicative
-import qualified Data.ByteString as B
 import Data.Attoparsec.ByteString as P
 import Data.Attoparsec.ByteString.Char8 as C
 import qualified Data.ByteString.Char8 as K
@@ -25,9 +24,7 @@ parsePair = do
              then parseQuoted
              else parseUnquoted
       return val
-    parseUnquoted :: Parser B.ByteString
     parseUnquoted = P.takeWhile (P.notInClass " ")
-    parseQuoted :: Parser K.ByteString
     parseQuoted = do
       char '"'
       v <- P.takeWhile (P.notInClass "\"") <* char '"'
@@ -54,9 +51,7 @@ main = do
     p pr s = do
       putStrLn (K.unpack s)
       case (parseOnly pr s) of
-        Right r -> do
-          print r
-          -- putStrLn (K.unpack i)
+        Right r -> print r
         x -> do
           print "FAILURE"
           print x
