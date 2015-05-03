@@ -36,18 +36,20 @@ parsePair = do
 ws = P.takeWhile (P.inClass " ")
 
 parseLine :: Parser [Pair]
-parseLine = (many parsePair) <* endOfLine
+parseLine = (many parsePair)
 
-s = "key=value foo=\"a bar\"\n"
-s2 = "key=\"value\" foo=bar\n"
-s3 = "key=\"a value\" foo=bar\n"
-s4 = "a=1 b=2 c=3\n"
+s = "key=value foo=\"a bar\""
+s2 = "key=\"value\" foo=bar"
+s3 = "key=\"a value\" foo=bar"
+s4 = "a=1 b=2 c=3"
+s5 = "schmoo=\"hello\nworld\""
 
 main = do
   p parseLine s
   p parseLine s2
   p parseLine s3
   p parseLine s4
+  p parseLine s5
   where
     p pr s = do
       putStrLn (K.unpack s)
