@@ -13,16 +13,27 @@ data Pair = Pair String String deriving (Show)
 parsePair :: Parser Pair
 parsePair = do
   key <- K.unpack <$> (ws *> pKey)
-  char '='
   val <- K.unpack <$> pVal
   return $ Pair key val
   where
-    pKey = P.takeWhile (P.notInClass "=")
+    pKey = P.takeWhile (P.notInClass "= ")
     pVal = do
+      Just c <- C.peekChar
+      val <- case c of
+               ' ' -> return "true"
+               _ -> do
+                 return ""
+      case val of
+        "" -> do
+          char '='
+          val <- pVal'
+          return val
+        x -> return x
+    pVal' = do
       Just c1 <- C.peekChar
-      val <- if c1 == '"'
-             then parseQuoted
-             else parseUnquoted
+      val <- case c1 of
+               '"' -> parseQuoted
+               _ -> parseUnquoted
       return val
     parseUnquoted = P.takeWhile (P.notInClass " ")
     parseQuoted = do
