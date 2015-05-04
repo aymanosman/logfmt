@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-
 module Logfmt where
 
 import Control.Monad
@@ -15,31 +14,28 @@ parsePair = do
   key <- K.unpack <$> (ws *> pKey)
   val <- K.unpack <$> pVal
   return $ Pair key val
-  where
-    pKey = P.takeWhile (P.notInClass "= ")
-    pVal = do
-      Just c <- C.peekChar
-      val <- case c of
-               ' ' -> return "true"
-               _ -> do
-                 return ""
-      case val of
-        "" -> do
-          char '='
-          val <- pVal'
-          return val
-        x -> return x
-    pVal' = do
-      Just c1 <- C.peekChar
-      val <- case c1 of
-               '"' -> parseQuoted
-               _ -> parseUnquoted
-      return val
-    parseUnquoted = P.takeWhile (P.notInClass " ")
-    parseQuoted = do
-      char '"'
-      v <- P.takeWhile (P.notInClass "\"") <* char '"'
-      return v
+
+pKey = P.takeWhile (P.notInClass "= ")
+pVal = do
+  -- c <- C.peekChar
+  -- val <- case c of
+  --   Nothing -> return "true"
+  --   Just ' ' -> return "true"
+  --   Just '=' -> return ""
+  Just c <- C.peekChar
+  case c of
+    ' ' -> return "true"
+    _ -> do char '=' >> pVal'
+
+pVal' = do
+  Just c1 <- C.peekChar
+  case c1 of
+    '"' -> parseQuoted
+    _ -> parseUnquoted
+
+parseUnquoted = P.takeWhile (P.notInClass " ")
+parseQuoted = do
+  char '"' >> P.takeWhile (P.notInClass "\"") <* char '"'
 
 ws = P.takeWhile (P.inClass " ")
 

@@ -1,15 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
-
 module Logfmt where
 
 import Control.Monad
 import Control.Applicative
-import qualified Data.ByteString as B
 import Data.Attoparsec.ByteString as P
 import Data.Attoparsec.ByteString.Char8 as C
 import qualified Data.ByteString.Char8 as K
 
-data Pair = Pair B.ByteString B.ByteString deriving (Show)
+data Pair = Pair K.ByteString K.ByteString deriving (Show)
 
 parsePair :: Parser Pair
 parsePair = Pair <$> parseKey <*> parseValue
