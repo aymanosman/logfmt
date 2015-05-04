@@ -1,6 +1,9 @@
 import Test.Hspec
+import Test.Hspec.Attoparsec
 import Test.QuickCheck
 import Control.Exception (evaluate)
+
+import Logfmt
 
 main = hspec $ do
   describe "This" $ do
@@ -12,4 +15,7 @@ main = hspec $ do
 
     it "throws" $ do
       evaluate (head []) `shouldThrow` anyException
+
+    it "should parse" $ do
+      ("a=b") ~> parseLine `shouldParse` [Pair "a" "b"]
 
