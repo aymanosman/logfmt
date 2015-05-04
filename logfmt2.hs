@@ -3,8 +3,9 @@ module Logfmt where
 
 import Control.Monad
 import Control.Applicative
-import Data.Attoparsec.ByteString as P
-import Data.Attoparsec.ByteString.Char8 as C
+import Data.Attoparsec.ByteString (Parser)
+import qualified Data.Attoparsec.ByteString as P
+import qualified Data.Attoparsec.ByteString.Char8 as C
 import qualified Data.ByteString.Char8 as K
 
 data Pair = Pair K.ByteString K.ByteString deriving (Show)
@@ -12,13 +13,18 @@ data Pair = Pair K.ByteString K.ByteString deriving (Show)
 parsePair :: Parser Pair
 parsePair = Pair <$> parseKey <*> parseValue
 
-parseKey = P.takeWhile (P.notInClass "= ")
+parseKey = do
+  k <- P.takeWhile (P.notInClass "= ")
+  case k of
+    "" -> fail ("Cannot have empty key")
+    x -> return x
+
 parseValue = do
   c <- C.peekChar
   case c of
-    Nothing -> fail "wow" -- return "true"
+    Nothing -> return "true" -- fail "wow"
     Just ' ' -> return "true"
-    Just '=' -> char '=' >> parseVal
+    Just '=' -> C.char '=' >> parseVal
   where
     parseVal = do
       c <- C.peekChar
@@ -27,7 +33,7 @@ parseValue = do
         Just '"' -> parseQuoted
         _ -> parseUnquoted
 
-parseQuoted = char '"' >> P.takeWhile (P.notInClass "\"") <* char '"'
+parseQuoted = C.char '"' >> P.takeWhile (P.notInClass "\"") <* C.char '"'
 parseUnquoted = P.takeWhile (P.notInClass " ")
 
 parseLine :: Parser [Pair]
@@ -50,6 +56,6 @@ main = do
   where
   p pr s = do
     K.putStrLn s
-    let Right r = parseOnly pr s
+    let Right r = P.parseOnly pr s
     mapM_ print r
     putStrLn ""
