@@ -40,3 +40,6 @@ parseQuoted = P.char '"' >> s <* P.char '"'
     s = String <$> P.takeWhile (P.notInClass "\"")
 parseUnquoted = String <$> P.takeWhile (P.notInClass " ")
 
+-- testing
+g a = let Right x = P.parseOnly toJsonString a in L.putStrLn x
+
