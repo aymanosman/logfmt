@@ -11,7 +11,7 @@ data Pair = Pair String String deriving (Show)
 
 parsePair :: Parser Pair
 parsePair = do
-  key <- K.unpack <$> (ws *> pKey)
+  key <- K.unpack <$> (C.skipSpace *> pKey)
   val <- K.unpack <$> pVal
   return $ Pair key val
 
@@ -25,7 +25,7 @@ pVal = do
   Just c <- C.peekChar
   case c of
     ' ' -> return "true"
-    _ -> do char '=' >> pVal'
+    '=' -> char '=' >> pVal'
 
 pVal' = do
   Just c1 <- C.peekChar
@@ -36,8 +36,6 @@ pVal' = do
 parseUnquoted = P.takeWhile (P.notInClass " ")
 parseQuoted = do
   char '"' >> P.takeWhile (P.notInClass "\"") <* char '"'
-
-ws = P.takeWhile (P.inClass " ")
 
 parseLine :: Parser [Pair]
 parseLine = (many parsePair)
