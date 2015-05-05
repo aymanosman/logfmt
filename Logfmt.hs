@@ -48,3 +48,13 @@ g a = let Right x = P.parseOnly toJsonString a in L.putStrLn x
 
 main = do
   g "a=2 e=\"a \\\"val\" f="
+
+
+--	ident_byte = any byte greater than ' ', excluding '=' and '"'
+--	string_byte = any byte excluding '"' and '\'
+--	garbage = !ident_byte
+--	ident = ident_byte, { ident byte }
+--	key = ident
+--	value = ident | '"', { string_byte | '\', '"' }, '"'
+--	pair = key, '=', value | key, '=' | key
+--	message = { garbage, pair }, garbage
