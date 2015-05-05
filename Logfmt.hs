@@ -12,10 +12,7 @@ import Data.ByteString.Lazy.Char8 as L
 
 -- parseLine :: Parser
 parseLine =  many (P.skipSpace *> parsePair)
-
-toJsonString = encode . object <$> parseLine
-
-parsePair = (.=) <$> parseKey <*> parseValue
+parsePair = (,) <$> parseKey <*> parseValue
 
 parseKey = do
   k <- P.takeWhile (P.notInClass "= ")
@@ -43,12 +40,7 @@ parseQuoted = P.char '"' >> s <* P.char '"'
 parseUnquoted = String <$> P.takeWhile (P.notInClass " ")
 
 -- testing
--- T.putStrLn a >>
-g a = let Right x = P.parseOnly toJsonString a in L.putStrLn x
-
-main = do
-  g "a=2 e=\"a \\\"val\" f="
-
+toJsonString = encode <$> object <$> parseLine
 
 --	ident_byte = any byte greater than ' ', excluding '=' and '"'
 --	string_byte = any byte excluding '"' and '\'

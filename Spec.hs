@@ -4,33 +4,34 @@ import Test.Hspec
 import Test.Hspec.Attoparsec
 import Test.QuickCheck
 import Control.Exception (evaluate)
-import Data.ByteString (ByteString)
+import Data.Text (Text)
+import Data.Aeson
 
 import Logfmt
 
-type B = ByteString
+type T = Text
 
 main = hspec $ do
   describe "Examples" $ do
 
     it "one" $ do
-      ("key=value foo=\"a bar\"" :: B) ~> parseLine `shouldParse` [
-        Pair "key" "value"
-        , Pair "foo" "a bar"]
+      ("key=value foo=\"a bar\"" :: T) ~> parseLine `shouldParse` [
+        ("key", "value")
+        , ("foo", "a bar")]
 
     it "two" $ do
-      ("\"" :: B) ~> parseLine `shouldParse` []
+      ("\"" :: T) ~> parseLine `shouldParse` []
 
     it "three" $ do
-      ("a=foo b=10ms c=cat E=\"123\" d foo= emp=" :: B) ~> parseLine
+      ("a=foo b=10ms c=cat E=\"123\" d foo= emp=" :: T) ~> parseLine
         `shouldParse` [
-        Pair "a" "foo"
-        , Pair "b" "10ms"
-        , Pair "c" "cat"
-        , Pair "E" "123"
-        , Pair "d" "true"
-        , Pair "foo" ""
-        , Pair "emp" ""]
+         ("a", String "foo")
+        , ("b", String "10ms")
+        , ("c", String "cat")
+        , ("E", String "123")
+        , ("d", Bool True)
+        , ("foo", String "")
+        , ("emp", String "")]
 
 -- s2 = "key=\"value\" foo=bar"
 -- s3 = "key=\"a value\" foo=bar"
