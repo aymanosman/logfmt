@@ -1,12 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Logfmt where
 
+import Prelude hiding (putStrLn)
 import Control.Monad
 import Control.Applicative
 import Data.Attoparsec.Text (Parser)
 import qualified Data.Attoparsec.Text as P
 import Data.Text
 import Data.Aeson as J
+import Data.ByteString.Lazy.Char8 as L
 
 -- parseLine :: Parser
 parseLine =  many (P.skipSpace *> parsePair)
@@ -41,5 +43,8 @@ parseQuoted = P.char '"' >> s <* P.char '"'
 parseUnquoted = String <$> P.takeWhile (P.notInClass " ")
 
 -- testing
+-- T.putStrLn a >>
 g a = let Right x = P.parseOnly toJsonString a in L.putStrLn x
 
+main = do
+  g "a=2 e=\"a \\\"val\" f="
