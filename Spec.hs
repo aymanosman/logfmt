@@ -41,7 +41,7 @@ main = hspec $ do
     it (unpack s) $ do
       (s  :: T) ~> parseLine `shouldParse` [
         ("a", Just "2")
-        , ("b", Just "a string\"ing")
+        , ("b", Just "a str\\\"ing")
         , ("f", Nothing)
         ]
 

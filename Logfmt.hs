@@ -3,6 +3,7 @@ module Logfmt where
 
 import Prelude hiding (putStrLn)
 import Control.Applicative
+import Data.Monoid
 import Data.Attoparsec.Text (Parser)
 import qualified Data.Attoparsec.Text as P
 import Data.Text (Text)
@@ -35,7 +36,14 @@ parseValue = do
 
 parseQuoted = P.char '"' >> s <* P.char '"'
   where
-    s = Just <$> P.takeWhile (P.notInClass "\"")
+    s = do
+      Just c <- P.peekChar
+      case c of
+        '"' -> return $ Just ""
+        _ -> Just <$> mconcat <$> many (esc <|> string_byte)
+    esc = P.string "\\\""
+    string_byte = P.takeWhile1 (P.notInClass "\"\\")
+    -- Just <$> P.takeWhile (P.notInClass "\"")
 parseUnquoted = Just <$> P.takeWhile (P.notInClass " ")
 
 -- testing
