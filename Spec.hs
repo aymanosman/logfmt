@@ -4,7 +4,7 @@ import Test.Hspec
 import Test.Hspec.Attoparsec
 import Test.QuickCheck
 import Control.Exception (evaluate)
-import Data.Text (Text)
+import Data.Text (Text, unpack)
 import Data.Aeson
 
 import Logfmt
@@ -13,18 +13,20 @@ type T = Text
 
 main = hspec $ do
   describe "Examples" $ do
-
-    it "one" $ do
-      ("key=value foo=\"a bar\"" :: T) ~> parseLine `shouldParse` [
+    let s = "key=value foo=\"a bar\""
+    it (unpack s) $ do
+      (s :: T) ~> parseLine `shouldParse` [
         ("key", Just "value")
         , ("foo", Just "a bar")
         ]
 
-    it "two" $ do
-      ("\"" :: T) ~> parseLine `shouldParse` []
+    let s = "\""
+    it (unpack s) $ do
+      (s :: T) ~> parseLine `shouldParse` []
 
-    it "three" $ do
-      ("a=foo b=10ms c=cat E=\"123\" d foo= emp=" :: T) ~> parseLine
+    let s = "a=foo b=10ms c=cat E=\"123\" d foo= emp="
+    it (unpack s) $ do
+      (s :: T) ~> parseLine
         `shouldParse` [
          ("a", Just "foo")
         , ("b", Just "10ms")
@@ -35,8 +37,9 @@ main = hspec $ do
         , ("emp", Just "")
         ]
 
-    it "four" $ do
-      ("a=2 b=\"a str\\\"ing\" f" :: T) ~> parseLine `shouldParse` [
+    let s = "a=2 b=\"a str\\\"ing\" f"
+    it (unpack s) $ do
+      (s  :: T) ~> parseLine `shouldParse` [
         ("a", Just "2")
         , ("b", Just "a string\"ing")
         , ("f", Nothing)
