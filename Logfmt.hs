@@ -10,7 +10,7 @@ import Data.Text
 import Data.Aeson as J
 import Data.ByteString.Lazy.Char8 as L
 
--- parseLine :: Parser
+parseLine :: Parser [(Text, Maybe Text)]
 parseLine =  many (P.skipSpace *> parsePair)
 parsePair = (,) <$> parseKey <*> parseValue
 
@@ -23,24 +23,32 @@ parseKey = do
 parseValue = do
   c <- P.peekChar
   case c of
-    Nothing -> return $ Bool True -- fail "wow"
-    Just ' ' -> return $ Bool True
+    Nothing -> return $ Nothing
+    Just ' ' -> return $ Nothing
     Just '=' -> P.char '=' >> parseVal
   where
     parseVal = do
       c <- P.peekChar
       case c of
-        Nothing -> return $ String ""
+        Nothing -> return $ Just ""
         Just '"' -> parseQuoted
         _ -> parseUnquoted
 
 parseQuoted = P.char '"' >> s <* P.char '"'
   where
-    s = String <$> P.takeWhile (P.notInClass "\"")
-parseUnquoted = String <$> P.takeWhile (P.notInClass " ")
+    s = Just <$> P.takeWhile (P.notInClass "\"")
+parseUnquoted = Just <$> P.takeWhile (P.notInClass " ")
 
 -- testing
-toJsonString = encode <$> object <$> parseLine
+parseToJson = encode <$> object <$> (Prelude.map handlePair) <$> parseLine
+  where
+    handlePair (k, v) =
+      case v of
+        Nothing -> (k, Bool True)
+        Just s -> (k, String s)
+
+g a = let Right s = P.parseOnly parseToJson a in L.putStrLn s
+
 
 --	ident_byte = any byte greater than ' ', excluding '=' and '"'
 --	string_byte = any byte excluding '"' and '\'

@@ -16,8 +16,8 @@ main = hspec $ do
 
     it "one" $ do
       ("key=value foo=\"a bar\"" :: T) ~> parseLine `shouldParse` [
-        ("key", "value")
-        , ("foo", "a bar")]
+        ("key", Just "value")
+        , ("foo", Just "a bar")]
 
     it "two" $ do
       ("\"" :: T) ~> parseLine `shouldParse` []
@@ -25,13 +25,13 @@ main = hspec $ do
     it "three" $ do
       ("a=foo b=10ms c=cat E=\"123\" d foo= emp=" :: T) ~> parseLine
         `shouldParse` [
-         ("a", String "foo")
-        , ("b", String "10ms")
-        , ("c", String "cat")
-        , ("E", String "123")
-        , ("d", Bool True)
-        , ("foo", String "")
-        , ("emp", String "")]
+         ("a", Just "foo")
+        , ("b", Just "10ms")
+        , ("c", Just "cat")
+        , ("E", Just "123")
+        , ("d", Nothing)
+        , ("foo", Just "")
+        , ("emp", Just "")]
 
 -- s2 = "key=\"value\" foo=bar"
 -- s3 = "key=\"a value\" foo=bar"
