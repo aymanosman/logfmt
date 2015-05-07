@@ -2,13 +2,12 @@
 module Logfmt where
 
 import Prelude hiding (putStrLn)
-import Control.Monad
 import Control.Applicative
 import Data.Attoparsec.Text (Parser)
 import qualified Data.Attoparsec.Text as P
-import Data.Text
-import Data.Aeson as J
-import Data.ByteString.Lazy.Char8 as L
+import Data.Text (Text)
+import Data.Aeson
+import Data.ByteString.Lazy.Char8 (putStrLn)
 
 parseLine :: Parser [(Text, Maybe Text)]
 parseLine =  many (P.skipSpace *> parsePair)
@@ -40,14 +39,14 @@ parseQuoted = P.char '"' >> s <* P.char '"'
 parseUnquoted = Just <$> P.takeWhile (P.notInClass " ")
 
 -- testing
-parseToJson = encode <$> object <$> (Prelude.map handlePair) <$> parseLine
+parseToJson = encode <$> object <$> (fmap handlePair) <$> parseLine
   where
     handlePair (k, v) =
       case v of
         Nothing -> (k, Bool True)
         Just s -> (k, String s)
 
-g a = let Right s = P.parseOnly parseToJson a in L.putStrLn s
+g a = let Right s = P.parseOnly parseToJson a in putStrLn s
 
 
 --	ident_byte = any byte greater than ' ', excluding '=' and '"'
