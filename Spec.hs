@@ -17,7 +17,8 @@ main = hspec $ do
     it "one" $ do
       ("key=value foo=\"a bar\"" :: T) ~> parseLine `shouldParse` [
         ("key", Just "value")
-        , ("foo", Just "a bar")]
+        , ("foo", Just "a bar")
+        ]
 
     it "two" $ do
       ("\"" :: T) ~> parseLine `shouldParse` []
@@ -31,7 +32,15 @@ main = hspec $ do
         , ("E", Just "123")
         , ("d", Nothing)
         , ("foo", Just "")
-        , ("emp", Just "")]
+        , ("emp", Just "")
+        ]
+
+    it "four" $ do
+      ("a=2 b=\"a str\\\"ing\" f" :: T) ~> parseLine `shouldParse` [
+        ("a", Just "2")
+        , ("b", Just "a string\"ing")
+        , ("f", Nothing)
+        ]
 
 -- s2 = "key=\"value\" foo=bar"
 -- s3 = "key=\"a value\" foo=bar"
