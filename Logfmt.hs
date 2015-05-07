@@ -15,7 +15,7 @@ parseLine =  many (P.skipSpace *> parsePair)
 parsePair = (,) <$> parseKey <*> parseValue
 
 parseKey = do
-  k <- P.takeWhile (P.notInClass "= ")
+  k <- P.takeWhile (P.notInClass "=\" ")
   case k of
     "" -> fail ("Cannot have empty key")
     x -> return x
