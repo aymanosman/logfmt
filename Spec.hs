@@ -41,7 +41,7 @@ main = hspec $ do
     it (unpack s) $ do
       (s  :: T) ~> parseLine `shouldParse` [
         ("a", Just "2")
-        , ("b", Just "a str\"ing")
+        , ("b", Just "a str\\\"ing")
         , ("f", Nothing)
         ]
 
@@ -49,7 +49,7 @@ main = hspec $ do
     it (unpack s) $ do
       (s :: T) ~> parseLine `shouldParse` [
         ("f", Nothing)
-        , ("a", Just " hello\"world\"")
+        , ("a", Just " hello\\\"world\\\"")
         ]
 
 -- s2 = "key=\"value\" foo=bar"
