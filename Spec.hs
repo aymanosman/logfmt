@@ -5,7 +5,7 @@ import Test.Hspec.Attoparsec
 import Test.QuickCheck
 import Control.Exception (evaluate)
 import Data.Monoid
-import Data.Text (Text, unpack)
+import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Aeson
 
 import Logfmt
@@ -15,7 +15,11 @@ type T = Text
 gen [] = ""
 gen ((a,b):xs) = a <> conv b <> " " <> gen xs
   where
-    conv b = (case b of Just s -> "=\"" <> s <> "\""; Nothing -> "")
+    conv b = case b of
+      Just s -> "=" <> f s
+      Nothing -> ""
+    f s = if " " `isInfixOf` s
+          then pack $ show s else s
 
 main = hspec $ do
   describe "Examples" $ do
