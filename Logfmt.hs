@@ -14,39 +14,36 @@ parseLine :: Parser [(Text, Maybe Text)]
 parseLine =  many (P.skipSpace *> parsePair)
 parsePair = (,) <$> parseKey <*> parseValue
 
-parseKey = do
-  k <- P.takeWhile (P.notInClass "=\" ")
-  case k of
-    "" -> fail ("Cannot have empty key")
-    x -> return x
+parseKey = P.takeWhile1 (P.notInClass "=\" ")
 
 parseValue = do
   c <- P.peekChar
   case c of
     Nothing -> return $ Nothing
     Just ' ' -> return $ Nothing
-    Just '=' -> P.char '=' >> parseVal
+    Just '=' -> P.char '=' >> val
   where
-    parseVal = do
+    val = do
       c <- P.peekChar
       case c of
         Nothing -> return $ Just ""
         Just '"' -> parseQuoted
         _ -> parseUnquoted
 
-parseQuoted = P.char '"' >> s <* P.char '"'
-  where
-    s = do
-      Just c <- P.peekChar
-      case c of
-        '"' -> return $ Just ""
-        _ -> Just <$> mconcat <$> many (esc <|> string_byte)
-    esc = P.string "\\\""
-    string_byte = P.takeWhile1 (P.notInClass "\"\\")
-    -- Just <$> P.takeWhile (P.notInClass "\"")
 parseUnquoted = Just <$> P.takeWhile (P.notInClass " ")
+parseQuoted = P.char '"' *> s <* P.char '"'
+  where
+    -- s = do
+    --   Just c <- P.peekChar
+    --   case c of
+    --     '"' -> return $ Just ""
+    --     _ -> Just <$> mconcat <$> many (esc <|> stringBytes)
+    s = Just <$> mconcat <$> many (esc <|> stringBytes)
+    esc = P.string "\\\""
+    stringBytes = P.takeWhile1 (P.notInClass "\"\\")
 
--- testing
+
+-- Example $ let Right x = P.parseOnly  parseToJson "a=2 f emp=" in putStrLn x
 parseToJson = encode <$> object <$> (fmap handlePair) <$> parseLine
   where
     handlePair (k, v) =
@@ -54,14 +51,11 @@ parseToJson = encode <$> object <$> (fmap handlePair) <$> parseLine
         Nothing -> (k, Bool True)
         Just s -> (k, String s)
 
-g a = let Right s = P.parseOnly parseToJson a in putStrLn s
-
-
---	ident_byte = any byte greater than ' ', excluding '=' and '"'
---	string_byte = any byte excluding '"' and '\'
---	garbage = !ident_byte
---	ident = ident_byte, { ident byte }
---	key = ident
---	value = ident | '"', { string_byte | '\', '"' }, '"'
---	pair = key, '=', value | key, '=' | key
 --	message = { garbage, pair }, garbage
+--	pair = key, '=', value | key, '=' | key
+--	value = ident | '"', { stringBytes | '\', '"' }, '"'
+--	key = ident
+--	ident = ident_byte, { ident byte }
+--	garbage = !ident_byte
+--	stringBytes = any byte excluding '"' and '\'
+--	ident_byte = any byte greater than ' ', excluding '=' and '"'
