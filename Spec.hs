@@ -4,6 +4,7 @@ import Test.Hspec
 import Test.Hspec.Attoparsec
 import Test.QuickCheck
 import Control.Exception (evaluate)
+import Data.Monoid
 import Data.Text (Text, unpack)
 import Data.Aeson
 
@@ -11,14 +12,18 @@ import Logfmt
 
 type T = Text
 
+gen [] = ""
+gen ((a,b):xs) = a <> conv b <> " " <> gen xs
+  where
+    conv b = (case b of Just s -> "=\"" <> s <> "\""; Nothing -> "")
+
 main = hspec $ do
   describe "Examples" $ do
-    let s = "key=value foo=\"a bar\""
+
+    let exp1 = [("key", Just "value") , ("foo", Just "a bar")]
+    let s = gen exp1
     it (unpack s) $ do
-      (s :: T) ~> parseLine `shouldParse` [
-        ("key", Just "value")
-        , ("foo", Just "a bar")
-        ]
+      (s :: T) ~> parseLine `shouldParse` exp1
 
     let s = "\""
     it (unpack s) $ do
@@ -52,8 +57,10 @@ main = hspec $ do
         , ("a", Just " hello\\\"world\\\"")
         ]
 
+    let s = "a=2 b=abc\"de f"
     it (unpack s) $ do
-      (s :: T) ~> parseLine `shouldParse` [
-        ("emp", "\\")
+      (s::T) ~> parseLine `shouldParse` [
+        ("a", Just "2")
+        , ("b", Just "abc")
         ]
 
