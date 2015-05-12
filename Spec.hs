@@ -6,7 +6,6 @@ import Test.QuickCheck
 import Control.Exception (evaluate)
 import Data.Monoid
 import Data.Text (Text, pack, unpack, isInfixOf)
-import Data.Aeson
 
 import Logfmt
 
