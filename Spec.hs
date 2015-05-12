@@ -12,8 +12,8 @@ import Logfmt
 
 type T = Text
 
-gen [] = ""
-gen ((a,b):xs) = a <> conv b <> " " <> gen xs
+encode' [] = ""
+encode' ((a,b):xs) = a <> conv b <> " " <> encode' xs
   where
     conv b = case b of
       Just s -> "=" <> f s
@@ -25,7 +25,7 @@ main = hspec $ do
   describe "Examples" $ do
 
     let exp1 = [("key", Just "value") , ("foo", Just "a bar")]
-    let s = gen exp1
+    let s = encode' exp1
     it (unpack s) $ do
       (s :: T) ~> parseLine `shouldParse` exp1
 
