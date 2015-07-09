@@ -2,9 +2,9 @@
 module Logfmt where
 
 import Control.Applicative
-import Data.Monoid
 import Data.Attoparsec.Text (Parser)
 import qualified Data.Attoparsec.Text as P
+import Data.Monoid
 import Data.Text (Text)
 
 parseLine :: Parser [(Text, Maybe Text)]

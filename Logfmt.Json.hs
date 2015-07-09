@@ -2,7 +2,9 @@
 module Logfmt.Json where
 
 import qualified Logfmt as L
+import Control.Applicative
 import Data.Aeson
+import Data.Attoparsec.Text (Parser)
 
 -- Example $ let Right x = P.parseOnly  parseToJson "a=2 f emp=" in putStrLn x
 parseToJson = encode <$> object <$> (fmap handlePair) <$> L.parseLine
